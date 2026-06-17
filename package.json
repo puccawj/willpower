@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build": "prisma generate && tsc -p tsconfig.json",
-    "start": "ts-node src/main.ts",
+    "start": "node dist/main.js",
     "start:dev": "ts-node-dev --respawn src/main.ts"
   },
   "dependencies": {
