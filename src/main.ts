@@ -10,16 +10,19 @@ async function bootstrap() {
   
   // Setup Swagger
   const config = new DocumentBuilder()
-    .setTitle('Items API')
-    .setDescription('The Items API description')
+    .setTitle('Willpower API')
+    .setDescription('The Willpower API description (Users, Orders, and Items)')
     .setVersion('1.0')
     .addTag('items')
+    .addTag('users')
+    .addTag('orders')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   
-  await app.listen(3000);
-  console.log('NestJS Application is running on: http://localhost:3000');
-  console.log('Swagger API documentation is available at: http://localhost:3000/api');
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  console.log(`NestJS Application is running on: http://localhost:${port}`);
+  console.log(`Swagger API documentation is available at: http://localhost:${port}/api`);
 }
 bootstrap();

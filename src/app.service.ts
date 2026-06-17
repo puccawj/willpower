@@ -1,60 +1,52 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-
-export interface Item {
-  id: number;
-  name: string;
-  description?: string;
-  createdAt: Date;
-}
+import { PrismaService } from './prisma/prisma.service';
+import { Item } from '@prisma/client';
 
 @Injectable()
 export class AppService {
-  private items: Item[] = [
-    { id: 1, name: 'Item One', description: 'This is item number one.', createdAt: new Date() },
-    { id: 2, name: 'Item Two', description: 'This is item number two.', createdAt: new Date() },
-  ];
-  private nextId = 3;
+  constructor(private prisma: PrismaService) {}
 
-  getAll(): Item[] {
-    return this.items;
+  async getAll(): Promise<Item[]> {
+    return this.prisma.item.findMany();
   }
 
-  getById(id: number): Item {
-    const item = this.items.find(i => i.id === id);
+  async getById(id: number): Promise<Item> {
+    const item = await this.prisma.item.findUnique({
+      where: { id },
+    });
     if (!item) {
       throw new NotFoundException(`Item with ID ${id} not found`);
     }
     return item;
   }
 
-  create(name: string, description?: string): Item {
-    const newItem: Item = {
-      id: this.nextId++,
-      name,
-      description,
-      createdAt: new Date(),
-    };
-    this.items.push(newItem);
-    return newItem;
+  async create(name: string, description?: string): Promise<Item> {
+    return this.prisma.item.create({
+      data: {
+        name,
+        description,
+      },
+    });
   }
 
-  update(id: number, name?: string, description?: string): Item {
-    const item = this.getById(id);
-    if (name !== undefined) {
-      item.name = name;
-    }
-    if (description !== undefined) {
-      item.description = description;
-    }
-    return item;
+  async update(id: number, name?: string, description?: string): Promise<Item> {
+    // Check if item exists first to throw NotFoundException
+    await this.getById(id);
+    return this.prisma.item.update({
+      where: { id },
+      data: {
+        name,
+        description,
+      },
+    });
   }
 
-  delete(id: number): { message: string } {
-    const index = this.items.findIndex(i => i.id === id);
-    if (index === -1) {
-      throw new NotFoundException(`Item with ID ${id} not found`);
-    }
-    this.items.splice(index, 1);
+  async delete(id: number): Promise<{ message: string }> {
+    // Check if item exists first to throw NotFoundException
+    await this.getById(id);
+    await this.prisma.item.delete({
+      where: { id },
+    });
     return { message: `Item with ID ${id} has been deleted successfully` };
   }
 }

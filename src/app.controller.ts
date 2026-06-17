@@ -1,18 +1,19 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, HttpCode, HttpStatus } from '@nestjs/common';
-import { AppService, Item } from './app.service';
+import { AppService } from './app.service';
+import { Item } from '@prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { CreateItemDto, UpdateItemDto } from './dto/item.dto';
 
 @ApiTags('items')
 @Controller('items')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService) { }
 
   // 1. GET ALL
   @Get()
   @ApiOperation({ summary: 'Get all items' })
   @ApiResponse({ status: 200, description: 'Return all items.' })
-  getAllItems(): Item[] {
+  getAllItems(): Promise<Item[]> {
     return this.appService.getAll();
   }
 
@@ -22,7 +23,7 @@ export class AppController {
   @ApiParam({ name: 'id', description: 'The unique identifier of the item', type: Number })
   @ApiResponse({ status: 200, description: 'Return the item.' })
   @ApiResponse({ status: 404, description: 'Item not found.' })
-  getItemById(@Param('id', ParseIntPipe) id: number): Item {
+  getItemById(@Param('id', ParseIntPipe) id: number): Promise<Item> {
     return this.appService.getById(id);
   }
 
@@ -32,7 +33,7 @@ export class AppController {
   @ApiOperation({ summary: 'Create a new item' })
   @ApiBody({ type: CreateItemDto })
   @ApiResponse({ status: 201, description: 'The item has been successfully created.' })
-  createItem(@Body() body: CreateItemDto): Item {
+  createItem(@Body() body: CreateItemDto): Promise<Item> {
     return this.appService.create(body.name, body.description);
   }
 
@@ -46,7 +47,7 @@ export class AppController {
   updateItem(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateItemDto
-  ): Item {
+  ): Promise<Item> {
     return this.appService.update(id, body.name, body.description);
   }
 
@@ -56,7 +57,7 @@ export class AppController {
   @ApiParam({ name: 'id', description: 'The unique identifier of the item to delete', type: Number })
   @ApiResponse({ status: 200, description: 'The item has been successfully deleted.' })
   @ApiResponse({ status: 404, description: 'Item not found.' })
-  deleteItem(@Param('id', ParseIntPipe) id: number) {
+  deleteItem(@Param('id', ParseIntPipe) id: number): Promise<{ message: string }> {
     return this.appService.delete(id);
   }
 }
