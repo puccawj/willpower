@@ -4,7 +4,7 @@
   "description": "NestJS API example with GET, POST, PUT, DELETE",
   "private": true,
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "prisma generate && tsc -p tsconfig.json",
     "start": "ts-node src/main.ts",
     "start:dev": "ts-node-dev --respawn src/main.ts"
   },
